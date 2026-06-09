@@ -5,12 +5,33 @@
   "license": "ISC",
   "author": "Roman Stupin",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
-    "dev": "nodemon -L index.js",
-    "test": "test.js"
+    "build": "tsc -p tsconfig.json",
+    "dev": "nodemon -L --watch src --ext ts --exec node --loader ts-node/esm src/server.ts",
+    "migrate:up": "node migrations/001_init_payment_collections.mongodb.js up",
+    "migrate:down": "node migrations/001_init_payment_collections.mongodb.js down",
+    "start": "node dist/server.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "mongodb": "^6.16.0"
+    "decimal.js": "^10.6.0",
+    "express": "^5.2.1",
+    "mongodb": "^6.16.0",
+    "mongoose": "^9.6.3",
+    "redis": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.9.2",
+    "@types/supertest": "^7.2.0",
+    "jest": "^30.4.2",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
   }
 }

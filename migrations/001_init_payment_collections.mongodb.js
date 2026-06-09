@@ -1,11 +1,8 @@
 import { MongoClient } from 'mongodb';
-import { config } from '../config.js';
-
-const {DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE} = {...config};
 
 const migrationName = '001_init_payment_collections';
 const direction = process.argv[2] || 'up';
-const mongoUri = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?authSource=admin`;
+const mongoUri = `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}?authSource=admin`;
 
 
 const decimalType = 'decimal';
@@ -305,6 +302,58 @@ async function up(db) {
     { $setOnInsert: { name: migrationName, appliedAt: new Date() } },
     { upsert: true },
   );
+
+
+  const merchantsCount = await db.collection('merchants').countDocuments();
+  if (merchantsCount === 0) {
+    const now = new Date();
+    const testMerchants = [
+      {
+        _id: 'merch_apple_store',
+        feePercent: Decimal128.fromString('0.015'), // 1.5%
+        webhookSecret: 'v3ry_s3cr3t_wh_k3y_for_appl3_stor3_32ch',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        _id: 'merch_google_play',
+        feePercent: Decimal128.fromString('0.020'), // 2.0%
+        webhookSecret: 'googl3_play_s3cr3t_signature_key_32chars',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        _id: 'merch_steam_shop',
+        feePercent: Decimal128.fromString('0.030'), // 3.0%
+        webhookSecret: 'st3am_valv3_s3cr3t_webhook_token_32ch',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        _id: 'merch_indie_games',
+        feePercent: Decimal128.fromString('0.010'), // 1.0%
+        webhookSecret: 'ind1e_g4m3s_wh_auth_k3y_length_gt_32',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        _id: 'merch_inactive_biz',
+        feePercent: Decimal128.fromString('0.025'), // 2.5%
+        webhookSecret: 'dis4bl3d_merchant_t3st_wh_key_32chars',
+        status: 'disabled',
+        createdAt: now,
+        updatedAt: now,
+      },
+    ];
+
+    await db.collection('merchants').insertMany(testMerchants);
+    console.log(`${migrationName}: seeded 5 test merchants`);
+  }
+
 }
 
 async function down(db) {
