@@ -1,0 +1,13 @@
+{
+  "name": "node_payment_api",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Roman Stupin",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon -L index.js",
+    "test": "test.js"
+  }
+}
