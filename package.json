@@ -9,5 +9,8 @@
   "scripts": {
     "dev": "nodemon -L index.js",
     "test": "test.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.16.0"
   }
 }
