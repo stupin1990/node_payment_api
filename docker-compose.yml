@@ -1,5 +1,4 @@
 services:
-  # Основное Node.js приложение
   app:
     build:
       context: .
@@ -21,7 +20,6 @@ services:
     networks:
       - app-network
 
-  # База данных MongoDB
   mongodb:
     image: mongo:8.3
     container_name: mongodb
@@ -41,7 +39,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Панель управления Mongo Express
   mongo-express:
     image: mongo-express:latest
     container_name: mongo_express
@@ -61,7 +58,6 @@ services:
     networks:
       - app-network
 
-  # Кэш Redis
   redis:
     image: redis:7.4-alpine
     container_name: redis

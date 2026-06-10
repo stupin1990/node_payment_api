@@ -1,8 +1,9 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, Decimal128 } from 'mongodb';
+import { config } from '../dist/src/config.js';
 
-const migrationName = '001_init_payment_collections';
+const migrationName = 'init_payment_collections';
 const direction = process.argv[2] || 'up';
-const mongoUri = `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}?authSource=admin`;
+const mongoUri = config.mongoUri;
 
 
 const decimalType = 'decimal';
@@ -231,79 +232,6 @@ async function up(db) {
     validationAction: 'error',
   });
 
-  await createCollectionIfMissing(db, 'schema_migrations', {
-    validator: {
-      $jsonSchema: {
-        bsonType: 'object',
-        required: ['name', 'appliedAt'],
-        additionalProperties: true,
-        properties: {
-          name: {
-            bsonType: stringType,
-          },
-          appliedAt: {
-            bsonType: dateType,
-          },
-        },
-      },
-    },
-    validationLevel: 'strict',
-    validationAction: 'error',
-  });
-
-  await db.collection('merchants').createIndex({ status: 1 }, { name: 'merchants_status_idx' });
-  await db.collection('merchants').createIndex({ updatedAt: -1 }, { name: 'merchants_updated_at_idx' });
-
-  await db.collection('invoices').createIndex(
-    { merchantId: 1, status: 1, createdAt: -1 },
-    { name: 'invoices_merchant_status_created_at_idx' },
-  );
-  await db.collection('invoices').createIndex(
-    { status: 1, createdAt: -1 },
-    { name: 'invoices_status_created_at_idx' },
-  );
-  await db.collection('invoices').createIndex(
-    { merchantId: 1, createdAt: -1 },
-    { name: 'invoices_merchant_created_at_idx' },
-  );
-
-  await db.collection('ledger_entries').createIndex(
-    { invoiceId: 1, type: 1 },
-    {
-      name: 'ledger_entries_invoice_credit_once_uidx',
-      unique: true,
-      partialFilterExpression: { type: 'payment_credit' },
-    },
-  );
-  await db.collection('ledger_entries').createIndex(
-    { merchantId: 1, currency: 1, createdAt: -1 },
-    { name: 'ledger_entries_merchant_currency_created_at_idx' },
-  );
-
-  await db.collection('webhook_events').createIndex(
-    { nonce: 1 },
-    { name: 'webhook_events_nonce_uidx', unique: true },
-  );
-  await db.collection('webhook_events').createIndex(
-    { invoiceId: 1, createdAt: -1 },
-    { name: 'webhook_events_invoice_created_at_idx' },
-  );
-  await db.collection('webhook_events').createIndex(
-    { expiresAt: 1 },
-    { name: 'webhook_events_expires_at_ttl_idx', expireAfterSeconds: 0 },
-  );
-
-  await db.collection('schema_migrations').createIndex(
-    { name: 1 },
-    { name: 'schema_migrations_name_uidx', unique: true },
-  );
-  await db.collection('schema_migrations').updateOne(
-    { name: migrationName },
-    { $setOnInsert: { name: migrationName, appliedAt: new Date() } },
-    { upsert: true },
-  );
-
-
   const merchantsCount = await db.collection('merchants').countDocuments();
   if (merchantsCount === 0) {
     const now = new Date();
@@ -361,15 +289,11 @@ async function down(db) {
   await dropCollectionIfExists(db, 'ledger_entries');
   await dropCollectionIfExists(db, 'invoices');
   await dropCollectionIfExists(db, 'merchants');
-
-  if (await collectionExists(db, 'schema_migrations')) {
-    await db.collection('schema_migrations').deleteOne({ name: migrationName });
-  }
 }
 
 async function run() {
   if (!['up', 'down'].includes(direction)) {
-    throw new Error(`Usage: node migrations/001_init_payment_collections.mongodb.js [up|down]`);
+    throw new Error(`Usage: node migrations/init_payment_collections.mongodb.js [up|down]`);
   }
 
   const client = new MongoClient(mongoUri);

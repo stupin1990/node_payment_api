@@ -9,8 +9,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "nodemon -L --watch src --ext ts --exec node --loader ts-node/esm src/server.ts",
-    "migrate:up": "node migrations/001_init_payment_collections.mongodb.js up",
-    "migrate:down": "node migrations/001_init_payment_collections.mongodb.js down",
+    "migrate:up": "node migrations/init_payment_collections.mongodb.js up",
+    "migrate:down": "node migrations/init_payment_collections.mongodb.js down",
     "start": "node dist/server.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
     "typecheck": "tsc -p tsconfig.json --noEmit"

@@ -1,5 +1,4 @@
 import crypto from 'node:crypto';
-import { HttpError } from '../errors.js';
 
 export function createWebhookSignature(rawBody: Buffer | string, secret: string, timestamp: string, nonce: string): string {
   const payload = Buffer.concat([
@@ -13,7 +12,6 @@ export function createWebhookSignature(rawBody: Buffer | string, secret: string,
 export function verifyWebhookSignature(rawBody: Buffer, secret: string, signatureHeader: string, timestamp: string, nonce: string): boolean {
   const signature = createWebhookSignature(rawBody, secret, timestamp, nonce);
   const expected = Buffer.from(signature, 'hex');
-  //throw new HttpError(401, signature);
 
   const normalizedSignature = signatureHeader.startsWith('sha256=')
     ? signatureHeader.slice('sha256='.length)
