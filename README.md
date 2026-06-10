@@ -9,14 +9,14 @@
 
 Api endpoints:
 
-1. POST /invoice — создание счёта
+1. POST http://localhost:3000/invoice — создание счёта
 -  Входные поля: amount, currency, merchantId.
 -  Комиссия: fee = amount × feePercent (feePercent берётся из настроек мерчанта).
 -  Сумма к зачислению: amountToReceive = amount − fee.
 -  Сохраняет счёт в MongoDB со статусом pending.
 -  Возвращает invoiceId и рассчитанные суммы.
 
-2. POST /webhook — приём статуса оплаты
+2. POST http://localhost:3000/webhook — приём статуса оплаты
 -  Заголовки: X-Signature, X-Timestamp, X-Nonce.
 -  Сигнатура рассчитывается по алгоритму hmac sha256 от строки X-Timestamp + '.' + X-Nonce + '.' + [тело запроса] с использованием секретного ключа мерчанта для которого был invoice.
 -  Тело: { invoiceId, status }, где status = paid | failed.
@@ -26,7 +26,7 @@ Api endpoints:
 -  Сохраняет зачисление в коллекции ledger_entries
 -  При статусе paid зачисление происходит ровно один раз, даже если webhook придёт повторно.
 
-3. GET /invoice/:id — получить текущий статус счёта
+3. GET http://localhost:3000/invoice/:id — получить текущий статус счёта
 
 4. Тесты
 - проверка подписи
